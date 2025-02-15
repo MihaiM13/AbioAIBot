@@ -31,6 +31,7 @@ except Exception as e:
     logging.error(f"Eroare la autentificarea cu Google Sheets: {e}")
     exit(1)
 
+
 # Deschidem Google Sheets (înlocuiește cu ID-ul corect al documentului tău)
 SPREADSHEET_ID = "1hdFipVgP16JAFgGfRD0R7wZ0PQkEvSAGTjhhjc"
 
