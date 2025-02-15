@@ -1,5 +1,6 @@
 import logging
 import os
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from telegram import Update
@@ -14,17 +15,15 @@ logging.basicConfig(
 # Setăm permisiunile pentru API
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Setăm calea corectă pentru credențiale (asigură-te că fișierul este în același folder cu acest script)
-CREDENTIALS_FILE = "abioaibot-api-0226e1c30d25.json"
+# Obținem credențialele din variabila de mediu
+google_credentials = os.getenv("GOOGLE_CREDENTIALS")
 
-# Verificare existența fișierului JSON înainte de utilizare
-if not os.path.exists(CREDENTIALS_FILE):
-    logging.error(f"Eroare: Fișierul {CREDENTIALS_FILE} nu există! Verifică numele și locația fișierului.")
+if not google_credentials:
+    logging.error("Eroare: Variabila de mediu GOOGLE_CREDENTIALS nu este setată!")
     exit(1)
 
-# Autorizare Google Sheets
 try:
-    creds = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPE)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(google_credentials), SCOPE)
     client = gspread.authorize(creds)
     logging.info("Autorizare Google Sheets reușită!")
 except Exception as e:
@@ -32,7 +31,7 @@ except Exception as e:
     exit(1)
 
 # Deschidem Google Sheets (înlocuiește cu ID-ul corect al documentului tău)
-SPREADSHEET_ID = "1hdHFipVgP16JAFgGffRD0R7zWaVzOPQkEvSAGTjhhjc"
+SPREADSHEET_ID = "1hdFipVgP16JAFgGfRD0R7ZwOPQkEvSAGTjhhjc"
 
 try:
     spreadsheet = client.open_by_key(SPREADSHEET_ID)
@@ -57,12 +56,11 @@ if not TOKEN:
     logging.error("Eroare: Variabila de mediu TELEGRAM_BOT_TOKEN nu este setată!")
     exit(1)
 
-
 # Restul codului...
-
 async def start(update: Update, context: CallbackContext) -> None:
     """Comanda /start"""
     await update.message.reply_text("Hello! I'm AbioAIBot 🤖. How can I assist you today?")
+
 
 async def help_command(update: Update, context: CallbackContext) -> None:
     """Comanda /help"""
