@@ -15,23 +15,24 @@ logging.basicConfig(
 # Setăm permisiunile pentru API
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Obținem credențialele din variabila de mediu
-google_credentials = os.getenv("GOOGLE_CREDENTIALS")
+# Obținem credențialele Google din variabila de mediu
+CREDENTIALS_JSON = os.getenv("GOOGLE_CREDENTIALS")
 
-if not google_credentials:
-    logging.error("Eroare: Variabila de mediu GOOGLE_CREDENTIALS nu este setată!")
+if not CREDENTIALS_JSON:
+    logging.error("Eroare: Variabila GOOGLE_CREDENTIALS nu este setată!")
     exit(1)
 
 try:
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(google_credentials), SCOPE)
+    creds_dict = json.loads(CREDENTIALS_JSON)
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, SCOPE)
     client = gspread.authorize(creds)
-    logging.info("Autorizare Google Sheets reușită!")
+    logging.info("Autentificare Google Sheets reușită!")
 except Exception as e:
-    logging.error(f"Eroare la autentificarea Google Sheets: {e}")
+    logging.error(f"Eroare la autentificarea cu Google Sheets: {e}")
     exit(1)
 
 # Deschidem Google Sheets (înlocuiește cu ID-ul corect al documentului tău)
-SPREADSHEET_ID = "1hdFipVgP16JAFgGfRD0R7ZwOPQkEvSAGTjhhjc"
+SPREADSHEET_ID = "1hdFipVgP16JAFgGfRD0R7wZ0PQkEvSAGTjhhjc"
 
 try:
     spreadsheet = client.open_by_key(SPREADSHEET_ID)
@@ -56,11 +57,10 @@ if not TOKEN:
     logging.error("Eroare: Variabila de mediu TELEGRAM_BOT_TOKEN nu este setată!")
     exit(1)
 
-# Restul codului...
+# Restul codului pentru Telegram Bot
 async def start(update: Update, context: CallbackContext) -> None:
     """Comanda /start"""
     await update.message.reply_text("Hello! I'm AbioAIBot 🤖. How can I assist you today?")
-
 
 async def help_command(update: Update, context: CallbackContext) -> None:
     """Comanda /help"""
