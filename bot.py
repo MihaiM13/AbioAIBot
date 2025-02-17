@@ -44,7 +44,6 @@ except Exception as e:
     exit(1)
 
 # Funcție pentru a scrie în Google Sheets
-
 def adauga_date_in_sheets(update: Update, text):
     """Salvează în Google Sheets numele utilizatorului, ID-ul, mesajul și timestamp-ul."""
     user = update.message.from_user
@@ -87,10 +86,7 @@ async def recommend(update: Update, context: CallbackContext) -> None:
     if not query:
         await update.message.reply_text("Please specify a category, e.g. /recommend image-tools")
         return
-    await update.message.reply_text(f"Here are some AI tools for {query}:
-1. Tool AI 1
-2. Tool AI 2
-3. Tool AI 3")
+    await update.message.reply_text(f"Here are some AI tools for {query}:\n1. Tool AI 1\n2. Tool AI 2\n3. Tool AI 3")
 
 async def echo(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(update.message.text)
