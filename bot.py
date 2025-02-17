@@ -2,6 +2,7 @@ import logging
 import os
 import json
 import gspread
+from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
@@ -31,12 +32,8 @@ except Exception as e:
     logging.error(f"Eroare la autentificarea cu Google Sheets: {e}")
     exit(1)
 
-# Deschidem Google Sheets (înlocuiește cu ID-ul corect al documentului tău)
+# Deschidem Google Sheets
 SPREADSHEET_ID = os.getenv("SPREADSHEET_ID")
-
-if not SPREADSHEET_ID:
-    logging.error("Eroare: Variabila SPREADSHEET_ID nu este setată!")
-    exit(1)
 
 try:
     spreadsheet = client.open_by_key(SPREADSHEET_ID)
@@ -47,7 +44,14 @@ except Exception as e:
     exit(1)
 
 # Funcție pentru a scrie în Google Sheets
-def adauga_date_in_sheets(date):
+
+def adauga_date_in_sheets(update: Update, text):
+    """Salvează în Google Sheets numele utilizatorului, ID-ul, mesajul și timestamp-ul."""
+    user = update.message.from_user
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    date = [user.full_name, user.id, text, timestamp]
+    
     try:
         sheet.append_row(date)
         logging.info(f"Datele {date} au fost adăugate cu succes în Google Sheets!")
@@ -63,32 +67,32 @@ if not TOKEN:
 
 # Restul codului pentru Telegram Bot
 async def start(update: Update, context: CallbackContext) -> None:
-    """Comanda /start"""
     await update.message.reply_text("Hello! I'm AbioAIBot 🤖. How can I assist you today?")
 
 async def help_command(update: Update, context: CallbackContext) -> None:
-    """Comanda /help"""
     await update.message.reply_text("Use /recommend [category] to get AI product recommendations!")
 
 async def save_data(update: Update, context: CallbackContext) -> None:
-    """Comanda /save pentru a salva date în Google Sheets"""
     text = " ".join(context.args)
+
     if not text:
         await update.message.reply_text("Te rog introdu textul pe care vrei să-l salvezi.")
         return
-    adauga_date_in_sheets([text])
+
+    adauga_date_in_sheets(update, text)
     await update.message.reply_text(f"Textul '{text}' a fost salvat în Google Sheets!")
 
 async def recommend(update: Update, context: CallbackContext) -> None:
-    """Comanda /recommend pentru recomandări de produse AI"""
     query = " ".join(context.args)
     if not query:
         await update.message.reply_text("Please specify a category, e.g. /recommend image-tools")
         return
-    await update.message.reply_text(f"Here are some AI tools for {query}:\n1. Tool AI 1\n2. Tool AI 2\n3. Tool AI 3")
+    await update.message.reply_text(f"Here are some AI tools for {query}:
+1. Tool AI 1
+2. Tool AI 2
+3. Tool AI 3")
 
 async def echo(update: Update, context: CallbackContext) -> None:
-    """Repetă mesajele utilizatorilor pentru test"""
     await update.message.reply_text(update.message.text)
 
 # Configurăm botul
